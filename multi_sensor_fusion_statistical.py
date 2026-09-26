@@ -20,13 +20,13 @@ def run_trial(num_frames=200):
     R_sensor1 = np.array([[5, 0], [0, 5]])
     R_sensor2 = np.array([[50, 0], [0, 50]])
 
-    # Track cumulative squared error for each method, so we can compare fairly
+    # track cumulative squared error for each method, to compare fairly
     err_sensor1 = 0.0
     err_sensor2 = 0.0
     err_fused = 0.0
 
     for i in range(num_frames):
-        tx, ty = i, i  # true position moves diagonally, same as before
+        tx, ty = i, i 
 
         s1 = (tx + np.random.randn() * 1, ty + np.random.randn() * 1)
         s2 = (tx + np.random.randn() * 5, ty + np.random.randn() * 5)
@@ -41,16 +41,16 @@ def run_trial(num_frames=200):
 
         est_x, est_y = kf.x[0], kf.x[1]
 
-        # Squared distance from truth, for each method
+        # squared distance from truth, for each method
         err_sensor1 += (s1[0] - tx) ** 2 + (s1[1] - ty) ** 2
         err_sensor2 += (s2[0] - tx) ** 2 + (s2[1] - ty) ** 2
         err_fused += (est_x - tx) ** 2 + (est_y - ty) ** 2
 
-    # Average error per frame (lower = better)
+    # average error per frame
     return err_sensor1 / num_frames, err_sensor2 / num_frames, err_fused / num_frames
 
 
-# Run multiple independent trials and average the results,
+# run multiple independent trials and average the results,
 # since a single run can still get "lucky" or "unlucky"
 num_trials = 20
 totals = np.zeros(3)
