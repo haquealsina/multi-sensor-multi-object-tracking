@@ -4,7 +4,7 @@ from filterpy.kalman import KalmanFilter
 from scipy.optimize import linear_sum_assignment
 from ultralytics import YOLO
 
-CLASSES_TO_TRACK = {"person"}  # FIX 3: person only for clean single-box result
+CLASSES_TO_TRACK = {"person"}  # person only for clean single box result
 
 class Track:
     _next_id = 0
@@ -91,20 +91,20 @@ def compute_iou(boxA, boxB):
     return inter_area / union_area
 
 
-# ---------------- Settings ----------------
+# settings
 MAX_MISSED_FRAMES = 5
 IOU_MATCH_THRESHOLD = 0.2
-CONFIRM_HITS = 2              # FIX 4: reduced from 3 to 2
-YOLO_CONFIDENCE_THRESHOLD = 0.5  # FIX 2: raised from 0.4 to 0.5
+CONFIRM_HITS = 2             
+YOLO_CONFIDENCE_THRESHOLD = 0.5  
 
 COLORS = [
     (0, 255, 0), (255, 0, 0), (0, 0, 255), (255, 255, 0),
     (255, 0, 255), (0, 255, 255), (128, 255, 0), (0, 128, 255)
 ]
 
-# ---------------- Setup ----------------
+# setup 
 cap = cv2.VideoCapture(0)
-model = YOLO("yolov8s.pt")   # FIX 1: upgraded from nano to small model
+model = YOLO("yolov8s.pt")   
 
 tracks = []
 
@@ -115,8 +115,8 @@ while True:
     if not ret:
         break
 
-    # ---- 1. Detect using YOLO ----
-    results = model(frame, verbose=False, iou=0.4, conf=0.5)[0]  # FIX 2: NMS tuning
+    # detect using YOLO
+    results = model(frame, verbose=False, iou=0.4, conf=0.5)[0]  # NMS tuning
 
     detections = []
     for box in results.boxes:
@@ -134,11 +134,11 @@ while True:
         x, y, w, h = int(x1), int(y1), int(x2 - x1), int(y2 - y1)
         detections.append((x, y, w, h, label))
 
-    # ---- 2. Predict ----
+    # predict
     for track in tracks:
         track.predict()
 
-    # ---- 3. Match ----
+    # match
     if len(tracks) > 0 and len(detections) > 0:
         cost_matrix = np.zeros((len(tracks), len(detections)), dtype=np.float32)
         for t_idx, track in enumerate(tracks):
@@ -165,15 +165,15 @@ while True:
             matched_tracks.add(t_idx)
             matched_detections.add(d_idx)
 
-    # ---- 4. Unmatched tracks ----
+    # unmatched tracks
     for t_idx, track in enumerate(tracks):
         if t_idx not in matched_tracks:
             track.missed_frames += 1
 
-    # ---- 5. Remove stale tracks ----
+    # remove stale tracks
     tracks = [t for t in tracks if t.missed_frames <= MAX_MISSED_FRAMES]
 
-    # ---- 6. New tracks for unmatched detections ----
+    # new tracks for unmatched detections
     for d_idx, det in enumerate(detections):
         if d_idx not in matched_detections:
             x, y, w, h, label = det
@@ -181,12 +181,12 @@ while True:
             center_y = y + h // 2
             tracks.append(Track(center_x, center_y, w, h, label))
 
-    # ---- 7. Confirm tracks ----
+    # confirm tracks
     for track in tracks:
         if not track.confirmed and track.hits >= CONFIRM_HITS:
             track.confirmed = True
 
-    # ---- 8. Draw ----
+    # draw
     confirmed_count = 0
     for track in tracks:
         if not track.confirmed:
