@@ -1,4 +1,4 @@
-# Multi-Sensor Multi-Object Tracking using Kalman Filter and OpenCV
+# Multi-Sensor Multi-Object Tracking using Kalman Filter, OpenCV and YOLOv8
 
 A real-time object tracking system built from scratch in Python using OpenCV,
 a Kalman Filter, and YOLOv8 for detection. Tracks multiple objects
